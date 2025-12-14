@@ -7,7 +7,7 @@ Rename `.env.local.example` to `.env.local` and populate it with your real API k
 ```env
 TMDB_API_KEY=your_tmdb_api_key_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 

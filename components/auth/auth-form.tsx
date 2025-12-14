@@ -21,20 +21,24 @@ export function AuthForm() {
 
         try {
             if (mode === "signup") {
-                const { error } = await supabase.auth.signUp({
+                const { error, data } = await supabase.auth.signUp({
                     email,
                     password,
                 })
                 if (error) throw error
-                setMessage({ type: "success", text: "Check your email for the confirmation link!" })
+
+                // If auto-confirm is enabled, session exists immediately
+                if (data.session) {
+                    window.location.reload()
+                } else {
+                    setMessage({ type: "success", text: "Please check your email to confirm your account." })
+                }
             } else {
                 const { error } = await supabase.auth.signInWithPassword({
                     email,
                     password,
                 })
                 if (error) throw error
-                // On strict login, we might redirect or let a parent component handle state, 
-                // but for now let's just show success or refresh
                 window.location.reload()
             }
         } catch (error: any) {
@@ -45,13 +49,13 @@ export function AuthForm() {
     }
 
     return (
-        <Card className="w-[350px]">
+        <Card className="w-[350px] border-zinc-800 bg-zinc-900 shadow-xl">
             <CardHeader>
-                <CardTitle>{mode === "login" ? "Login" : "Create Account"}</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">{mode === "login" ? "Welcome Back" : "Create Account"}</CardTitle>
+                <CardDescription className="text-zinc-400">
                     {mode === "login"
-                        ? "Enter your email below to login to your account"
-                        : "Enter your email below to create your account"}
+                        ? "Enter your credentials to access your account"
+                        : "Sign up to start your movie journey"}
                 </CardDescription>
             </CardHeader>
             <form onSubmit={handleAuth}>
@@ -65,6 +69,7 @@ export function AuthForm() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
                             />
                         </div>
                         <div className="flex flex-col space-y-1.5">
@@ -75,33 +80,34 @@ export function AuthForm() {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-indigo-500"
                             />
                         </div>
                         {message && (
-                            <div className={`text-sm ${message.type === "error" ? "text-red-500" : "text-green-500"}`}>
+                            <div className={`text-sm p-2 rounded ${message.type === "error" ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-green-500/10 text-green-400 border border-green-500/20"}`}>
                                 {message.text}
                             </div>
                         )}
                     </div>
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2">
-                    <Button className="w-full" type="submit" disabled={loading}>
+                <CardFooter className="flex flex-col gap-3">
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-500/20 transition-all hover:shadow-indigo-500/40" type="submit" disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {mode === "login" ? "Sign In" : "Sign Up"}
+                        {mode === "login" ? "Sign In" : "Get Started"}
                     </Button>
-                    <div className="text-sm text-muted-foreground text-center">
+                    <div className="text-sm text-zinc-400 text-center">
                         {mode === "login" ? (
                             <>
-                                Don't have an account?{" "}
+                                New here?{" "}
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setMode("signup")
                                         setMessage(null)
                                     }}
-                                    className="underline text-primary hover:text-primary/80"
+                                    className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
                                 >
-                                    Sign up
+                                    Create an account
                                 </button>
                             </>
                         ) : (
@@ -113,9 +119,9 @@ export function AuthForm() {
                                         setMode("login")
                                         setMessage(null)
                                     }}
-                                    className="underline text-primary hover:text-primary/80"
+                                    className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
                                 >
-                                    Login
+                                    Sign in
                                 </button>
                             </>
                         )}
